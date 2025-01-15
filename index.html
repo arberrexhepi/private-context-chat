@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>File Manager GUI</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <h1>File Manager</h1>
+    <button id="chatBtn" class="chat-btn">💬 Chat</button>
+  </header>
+  <main>
+    <div id="fileExplorer" class="file-explorer"></div>
+  </main>
+
+  <!-- Chat Modal -->
+  <div id="chatModal" class="modal">
+    <div class="modal-content">
+      <button id="chatCloseBtn" class="close-btn">✖</button>
+      <div id="chatContext" class="chat-context"></div>
+      <div id="chatHistory" class="chat-history"></div>
+      <textarea id="chatInput" class="chat-input" placeholder="Type your message..."></textarea>
+      <button id="chatSendBtn" class="send-btn">Send</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
