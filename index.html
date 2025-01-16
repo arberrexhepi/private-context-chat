@@ -3,20 +3,41 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Playground OS - Command Version</title>
+    <title>Playground OS - GUI Version</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="chat.css">
+    <link rel="stylesheet" href="chat-memory.css"> <!-- New CSS for chat memory -->
 </head>
 
 <body>
-    <div id="console">
-        <pre id="output"></pre>
-    </div>
-    <input type="text" id="commandInput" placeholder="Enter command here" autocomplete="off" />
-    <div id="dataButtons">
+    <h1>Playground OS</h1>
+    <div id="toolbar">
+        <button id="newFolderBtn">New Folder</button>
+        <button id="newFileBtn">New File</button>
         <button id="downloadBtn">Download Data</button>
         <button id="importBtn">Import Data</button>
+        <button id="chatBtn">💬</button>
     </div>
+    <div id="fileExplorer"></div>
+
+    <!-- Chat Modal -->
+    <div id="chatModal" class="chat-modal">
+        <div class="chat-header">
+            <h2>Chat with LLM</h2>
+            <button id="chatCloseBtn">✖</button>
+        </div>
+        <div class="chat-body">
+            <div id="chatContext" class="chat-context"></div>
+            <div id="chatHistory" class="chat-history"></div>
+            <textarea id="chatInput" placeholder="Type your message..."></textarea>
+            <button id="chatSendBtn">Send</button>
+        </div>
+    </div>
+
+    <!-- Scripts -->
     <script src="app.js"></script>
+    <script src="chat-memory.js" defer></script> <!-- New JS for chat memory -->
+    <script src="chat.js" defer></script>
 </body>
 
 </html>
