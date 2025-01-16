@@ -8,63 +8,69 @@ document.addEventListener("DOMContentLoaded", () => {
   const chatContext = document.getElementById("chatContext");
   let selectedFolders = []; // Array to hold references to selected folder nodes
 
-  // Function to generate Markdown context from a folder node
+  function getFolderByPath(path, node = fs) {
+    let currentNode = node;
+    for (let index of path) {
+      if (currentNode.children && currentNode.children[index - 1]) {
+        currentNode = currentNode.children[index - 1];
+      } else {
+        return null;
+      }
+    }
+    return currentNode;
+  }
+
   function generateFolderContext(folderNode, depth = 3) {
     if (!folderNode || folderNode.type !== "folder") {
       return "No folder selected or folder has no data.";
     }
 
     let md = "";
-    // Use different header levels based on depth (capped at 6)
     const headerPrefix = "#".repeat(Math.min(depth, 6));
+
+    md += `[Start folder {${folderNode.name}}]\n\n`;
+    md += `${headerPrefix} Folder: ${folderNode.name}\n\n`;
 
     folderNode.children.forEach((child) => {
       if (child.type === "folder") {
-        md += `${headerPrefix} Folder: ${child.name}\n\n`;
-        // Recursively gather contents of nested folders
         md += generateFolderContext(child, depth + 1);
       } else if (child.type === "file") {
+        md += `[Start file {${child.name}}]\n`;
         md += `${headerPrefix}# File: ${child.name}\n`;
         let content = Array.isArray(child.content)
           ? child.content.join("")
           : child.content;
-        md += content + "\n\n";
+        md += content + "\n";
+        md += `[End file {${child.name}}]\n\n`;
       }
     });
 
+    md += `[End folder {${folderNode.name}}]\n\n`;
+
     return md || "Folder is empty.";
   }
-
-  function getFolderById(id, node = fs) {
-    console.log("Searching for ID:", id, "in node:", node);
-    if (node.id === id) return node;
-    if (node.type === "folder") {
-      for (let child of node.children) {
-        let result = getFolderById(id, child);
-        if (result) return result;
-      }
-    }
-    return null;
-  }
-
-  function openChatModal() {
+  async function openChatModal() {
     let combinedContext = "";
 
+    // Retrieve selected folders from localStorage
+    let selectedFolders =
+      JSON.parse(localStorage.getItem("selectedFolders")) || [];
+
     // Check if there are multiple selected folders
-    if (window._selectedFolders.length > 0) {
-      window._selectedFolders.forEach((folderId) => {
-        // Use getFolderById to retrieve a folder node by its ID
-        let folderNode = getFolderById(folderId);
+    if (selectedFolders.length > 0) {
+      for (const folderPath of selectedFolders) {
+        let folderNode = getFolderByPath(folderPath);
         if (folderNode) {
           let contextText = generateFolderContext(folderNode);
+          combinedContext += `[Selected folder {${folderNode.name}}]\n\n`;
           combinedContext += contextText + "\n\n";
         }
-      });
+      }
     } else {
       // Fallback: use current folder if no multi-selection
       let currentFolderIndices =
         JSON.parse(localStorage.getItem("currentFolderIndices")) || [];
-      let currentFolder = getNodeByPath(currentFolderIndices);
+      let currentFolder = getFolderByPath(currentFolderIndices);
       combinedContext = generateFolderContext(currentFolder);
     }
 
@@ -76,11 +82,19 @@ document.addEventListener("DOMContentLoaded", () => {
       window.chatMemory &&
       typeof window.chatMemory.populateChatHistory === "function"
     ) {
-      window.chatMemory.populateChatHistory();
+      await window.chatMemory.populateChatHistory();
     }
     chatModal.style.display = "flex";
   }
 
+  chatBtn.addEventListener("click", openChatModal);
+  chatCloseBtn.addEventListener("click", () => {
+    chatModal.style.display = "none";
+  });
+  chatBtn.addEventListener("click", openChatModal);
+  chatCloseBtn.addEventListener("click", () => {
+    chatModal.style.display = "none";
+  });
   function closeChatModal() {
     chatModal.style.display = "none";
   }
@@ -114,7 +128,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "Consider THIS Context to the user's query, using relevant parts of Context to respond to user. Context: " +
         chatContext.textContent;
       const initialBotResponse =
-        "I will maintain this context as the ground truth for the responses I provide throughout our conversation";
+        "I will maintain this context as the ground truth for the responses I provide throughout our conversation, additionally I will consider the conversation context as well to provide better responses. I will not hallucinate responses for things I do not know, as what I may know about a query may be in the context. If not in the context I will act as Q&A before responding. I will be intelligent, helpful, insightful, and will prove to be a valuable cognitive partner for the user.";
 
       // Simulate initial interaction
       if (
@@ -157,6 +171,7 @@ document.addEventListener("DOMContentLoaded", () => {
         .flat();
 
       if (window._contextSwitch === true) {
+        alert(chatContext.textContent);
         messages = [
           { role: "system", content: "System: " + chatContext.textContent },
           ...messages,
