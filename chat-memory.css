@@ -1,0 +1,44 @@
+/* chat-memory.css */
+
+/* Style for user and bot messages in chat history */
+.chat-history .user-message {
+    text-align: right;
+    background-color: #0078d7;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 12px;
+    margin: 5px 0;
+    max-width: 80%;
+    align-self: flex-end;
+}
+
+.chat-history .bot-message {
+    text-align: left;
+    background-color: #333;
+    color: #ccc;
+    padding: 8px 12px;
+    border-radius: 12px;
+    margin: 5px 0;
+    max-width: 80%;
+    align-self: flex-start;
+}
+
+/* Scrollbar styling for chat history */
+.chat-history {
+    scrollbar-width: thin;
+    scrollbar-color: #555 transparent;
+}
+
+.chat-history::-webkit-scrollbar {
+    width: 8px;
+}
+
+.chat-history::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.chat-history::-webkit-scrollbar-thumb {
+    background-color: #555;
+    border-radius: 4px;
+    border: 2px solid transparent;
+}
