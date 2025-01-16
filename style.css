@@ -1,0 +1,240 @@
+:root {
+    /* Dark gradient background */
+    --bg-gradient: linear-gradient(135deg, #1c1c1e, #2c2c2e);
+
+    /* Glassmorphism and dark theme colors */
+    --glass-bg: rgba(30, 30, 30, 0.5);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --text-color: #ccc;
+    --card-shadow: rgba(0, 0, 0, 0.5) 0px 8px 32px;
+    --highlight: rgba(255, 255, 255, 0.1);
+    --folder-header: rgba(50, 50, 50, 0.5);
+    --file-hover-bg: rgba(255, 255, 255, 0.1);
+}
+
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: var(--bg-gradient);
+    color: var(--text-color);
+    padding: 20px;
+}
+
+h1 {
+    color: var(--text-color);
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Toolbar styling with glass effect */
+#toolbar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding: 10px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    backdrop-filter: blur(10px);
+    justify-content: center;
+}
+
+#toolbar button {
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-color);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    cursor: pointer;
+    backdrop-filter: blur(5px);
+    transition: background 0.3s, transform 0.2s;
+}
+
+#toolbar button:hover {
+    background: var(--highlight);
+    transform: scale(1.05);
+}
+
+/* File Explorer Container as a responsive grid */
+/* File Explorer Container as a responsive grid */
+#fileExplorer {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: repeat(3, 1fr);
+    /* Exactly 3 columns by default */
+}
+
+#fileExplorer>.folder {
+    min-height: 30vh;
+}
+
+
+@media (max-width: 768px) {
+    #fileExplorer {
+        grid-template-columns: 1fr;
+        /* 1 column on mobile devices */
+    }
+}
+
+.folder-title::before {
+    content: "📁 ";
+}
+
+
+/* Folder Card Style with glassmorphism */
+.folder {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    box-shadow: var(--card-shadow);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    backdrop-filter: blur(10px);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+
+.folder:hover {
+    transform: translateY(-4px);
+    box-shadow: rgba(0, 0, 0, 0.7) 0px 12px 24px;
+}
+
+.folder-title {
+    background: var(--folder-header);
+    padding: 12px 16px;
+    font-weight: bold;
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 1px solid var(--glass-border);
+    transition: box-shadow 0.3s;
+    color: var(--text-color);
+}
+
+.folder-title>.delete-btn {
+    float: right;
+}
+
+.folder-title.selected {
+    box-shadow: 0 0 0 2px var(--highlight) inset;
+}
+
+.folder-contents {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 30px 15px 30px 15px;
+}
+
+/* File Style inside folders */
+.file {
+    background: transparent;
+    padding: 8px 12px;
+    margin: 4px 0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+    color: var(--text-color);
+}
+
+.file:hover {
+    background: var(--file-hover-bg);
+}
+
+/* Optional: refine styles for console version if needed */
+#console {
+    height: 400px;
+    overflow-y: scroll;
+    border: 1px solid #444;
+    margin-bottom: 10px;
+    padding: 10px;
+    background: #1c1c1e;
+    color: var(--text-color);
+}
+
+#commandInput {
+    width: 100%;
+    padding: 10px;
+    font-size: 1em;
+    background: #2c2c2e;
+    color: var(--text-color);
+    border: 1px solid #444;
+    border-radius: 4px;
+}
+
+.delete-btn {
+    display: none;
+    background: transparent;
+    border: none;
+    color: #f00;
+    font-size: 1em;
+    cursor: pointer;
+    margin-left: 8px;
+}
+
+.file {
+    display: flex;
+    flex-grow: 1;
+    box-sizing: border-box;
+    width: 100%;
+    justify-content: space-between;
+}
+
+.folder:hover .delete-btn,
+.file:hover .delete-btn {
+    display: inline-block;
+}
+
+
+.modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 80vw;
+    height: 80vh;
+    transform: translate(-50%, -50%);
+    background: rgba(30, 30, 30, 0.95);
+    color: #ccc;
+    border: 1px solid #444;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+    display: none;
+    flex-direction: column;
+    z-index: 1000;
+}
+
+.modal.maximized {
+    width: 100vw;
+    height: 100vh;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background: #2c2c2e;
+    border-bottom: 1px solid #444;
+}
+
+.modal-title {
+    margin: 0;
+    font-size: 1.2em;
+}
+
+.modal-buttons button {
+    background: transparent;
+    border: none;
+    color: #ccc;
+    font-size: 1.2em;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+.modal-body {
+    flex: 1;
+    padding: 10px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    /* Preserve file formatting */
+}
