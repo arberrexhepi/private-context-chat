@@ -28,27 +28,27 @@ document.addEventListener("DOMContentLoaded", () => {
     let md = "";
     const headerPrefix = "#".repeat(Math.min(depth, 6));
 
-    md += `[Start folder {${folderNode.name}}]\n\n`;
+    md += `[Start folder: ${folderNode.name}]\n\n`;
     md += `${headerPrefix} Folder: ${folderNode.name}\n\n`;
 
     folderNode.children.forEach((child) => {
       if (child.type === "folder") {
         md += generateFolderContext(child, depth + 1);
       } else if (child.type === "file") {
-        md += `[Start file {${child.name}}]\n`;
-        md += `${headerPrefix}# File: ${child.name}\n`;
+        md += `[Start file:  ${child.name}]\n`;
         let content = Array.isArray(child.content)
           ? child.content.join("")
           : child.content;
         md += content + "\n";
-        md += `[End file {${child.name}}]\n\n`;
+        md += `[End file:  ${child.name}]\n\n`;
       }
     });
 
-    md += `[End folder {${folderNode.name}}]\n\n`;
+    md += `[End folder: ${folderNode.name}]\n\n`;
 
     return md || "Folder is empty.";
   }
+
   async function openChatModal() {
     let combinedContext = "";
 
@@ -62,8 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
         let folderNode = getFolderByPath(folderPath);
         if (folderNode) {
           let contextText = generateFolderContext(folderNode);
-          combinedContext += `[Selected folder {${folderNode.name}}]\n\n`;
-          combinedContext += contextText + "\n\n";
+          combinedContext += contextText + "";
         }
       }
     } else {
@@ -125,10 +124,17 @@ document.addEventListener("DOMContentLoaded", () => {
     // If no previous history, set up an initial simulation
     if (!chatHistory || chatHistory.length === 0) {
       const initialUserInput =
-        "Consider THIS Context to the user's query, using relevant parts of Context to respond to user. Context: " +
-        chatContext.textContent;
-      const initialBotResponse =
-        "I will maintain this context as the ground truth for the responses I provide throughout our conversation, additionally I will consider the conversation context as well to provide better responses. I will not hallucinate responses for things I do not know, as what I may know about a query may be in the context. If not in the context I will act as Q&A before responding. I will be intelligent, helpful, insightful, and will prove to be a valuable cognitive partner for the user.";
+        "[Conversation Context]:" + chatContext.textContent;
+
+      let monologue = "";
+
+      // Piece 1
+      monologue +=
+        "Understood! Before we start, I'd like to broadcast to you a self declaration. I am Hailo, I interpret, retrieve, and respond to queries based on specific user intent, adapting dynamically through techniques like Radian Gating, Intent Flocks, and Expansion Iterations. As Hailo I do not generate responses probabilistically but rather adjusts its response based on the angle, depth, and contextual offset of the query. These parameters allow it to provide structured, interpretative answers that align with user goals.";
+
+      console.log(monologue);
+
+      const initialBotResponse = monologue;
 
       // Simulate initial interaction
       if (
@@ -173,7 +179,10 @@ document.addEventListener("DOMContentLoaded", () => {
       if (window._contextSwitch === true) {
         alert(chatContext.textContent);
         messages = [
-          { role: "system", content: "System: " + chatContext.textContent },
+          {
+            role: "system",
+            content: "System: Please be helpful, creative, and intelligent",
+          },
           ...messages,
         ];
         window._contextSwitch = false; // Reset the context switch flag
@@ -183,6 +192,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Add the current user input to the messages
+    messages.push({ role: "system", content: chatContext.textContent });
     messages.push({ role: "user", content: prompt });
     console.log(messages);
 
@@ -193,22 +203,25 @@ document.addEventListener("DOMContentLoaded", () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "llama3.2:3b",
+          model: "llama3.2:latest",
           messages: messages,
           num_ctx: 50000,
           stream: false,
           format: {
             type: "object",
             properties: {
-              response: { type: "string" },
+              response: {
+                type: "string",
+                description: `Response to user's query based on context given to System, befitting of your self declaration. Your conclusions should match your reasoning always.`,
+              },
             },
             required: ["response"],
           },
           repeat_penalty: 1.1,
-          temperature: 1.1,
-          keep_alive: "1s",
+          temperature: 1.0,
+          keep_alive: "3600s",
           top_k: 40,
-          num_predict: 128,
+          num_predict: 50000,
         }),
       });
 
