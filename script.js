@@ -586,6 +586,7 @@ function createTree(node, indices, expandedPathIds) {
           // Set current folder to parent by removing last index
           let parentPath = folderIndices.slice(0, -1);
           currentFolderIndices = parentPath;
+          selectedFolders = parentPath;
         }
       }
 
