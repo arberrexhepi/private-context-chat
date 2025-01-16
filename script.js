@@ -545,25 +545,29 @@ function createTree(node, indices, expandedPathIds) {
     }
 
     title.addEventListener("click", (event) => {
-      const folderId = node.id; // Use 'node' instead of 'child'
+      const folderIndices = JSON.parse(title.dataset.indices); // Parse the data-indices attribute as an array
+      let selectedFolders =
+        JSON.parse(localStorage.getItem("selectedFolders")) || [];
 
       if (event.shiftKey) {
         // If Shift key is pressed, toggle selection
-        if (window._selectedFolders.includes(folderId)) {
+        let index = selectedFolders.findIndex(
+          (indices) => JSON.stringify(indices) === JSON.stringify(folderIndices)
+        );
+
+        if (index !== -1) {
           // Deselect if already selected
-          window._selectedFolders = window._selectedFolders.filter(
-            (id) => id !== folderId
-          );
+          selectedFolders.splice(index, 1);
           title.classList.remove("selected");
         } else {
           // Select the folder if not already selected
-          window._selectedFolders.push(folderId);
+          selectedFolders.push(folderIndices);
           title.classList.add("selected");
           window._contextSwitch = true;
         }
       } else {
         // Regular click behavior: clear previous selections and select this folder only
-        window._selectedFolders = [folderId];
+        selectedFolders = [folderIndices];
         window._contextSwitch = true;
         // Clear selection from all folder titles and mark this folder as selected
         document
@@ -571,28 +575,27 @@ function createTree(node, indices, expandedPathIds) {
           .forEach((el) => el.classList.remove("selected"));
         title.classList.add("selected");
 
-        // Parse stored indices from the title's data attribute
-        let storedIndices = JSON.parse(title.dataset.indices);
-
         // Toggle expansion and update currentFolderIndices accordingly
         if (childrenContainer.style.display === "none") {
           // Expanding the folder
           childrenContainer.style.display = "grid";
-          currentFolderIndices = storedIndices;
+          currentFolderIndices = folderIndices;
         } else {
           // Collapsing the folder
           childrenContainer.style.display = "none";
           // Set current folder to parent by removing last index
-          let parentPath = storedIndices.slice(0, -1);
+          let parentPath = folderIndices.slice(0, -1);
           currentFolderIndices = parentPath;
+          selectedFolders = parentPath;
         }
-
-        // Persist the updated current folder path
-        localStorage.setItem(
-          "currentFolderIndices",
-          JSON.stringify(currentFolderIndices)
-        );
       }
+
+      // Persist the updated selected folders and current folder path
+      localStorage.setItem("selectedFolders", JSON.stringify(selectedFolders));
+      localStorage.setItem(
+        "currentFolderIndices",
+        JSON.stringify(currentFolderIndices)
+      );
     });
 
     el.appendChild(childrenContainer);
